@@ -50,7 +50,7 @@ jobs:
         run: |
           git clone https://github.com/jellyfin/jellyfin-web.git
           cd jellyfin-web
-          git checkout master
+          git checkout release-10.10.z
           
       # 8. Build jellyfin-web
       - name: Build jellyfin-web
@@ -59,12 +59,18 @@ jobs:
           npm ci --no-audit
           USE_SYSTEM_FONTS=1 npm run build:production
           
-      # 9. Clone upstream jellyfin-tizen
+      # 9. Clone Smarthub enabled jellyfin-tizen fork
       - name: Clone jellyfin-tizen
         run: |
-          git clone https://github.com/jellyfin/jellyfin-tizen.git
+          git clone https://github.com/asamahy/jellyfin-tizen.git
           cd jellyfin-tizen
           git checkout master
+          
+      # 9.1. Add Oblong Icon
+      - name: Adding Oblong icon
+        run: |
+          cd jellyfin-tizen
+          wget -O icon.png https://raw.githubusercontent.com/asamahy/jellyfin-tizen-builds/refs/heads/master/iconoblong.png
           
       # 10. Copy avplayVideoPlayer.js
       - name: Add avplayVideoPlayer.js
@@ -183,7 +189,8 @@ jobs:
         run: |
           ./package.exp
           mkdir -p release
-          mv jellyfin-tizen/.buildResult/Jellyfin.wgt release/Jellyfin-AVPlay.wgt
+          DATE=$(date +'%Y-%m-%d-%H%M')  
+          mv jellyfin-tizen/.buildResult/Jellyfin.wgt release/Jellyfin-AVPlay-SmartHub-Oblonged-${DATE}.wgt
           
       # 20. Get version and date
       - name: Get version info
@@ -210,8 +217,9 @@ jobs:
             Built on ${{ steps.version.outputs.date_pretty }}
             
             ## Features
-            - Based on Jellyfin Web master branch
+            - Based on Jellyfin Web release-10.10.z branch
             - Includes AVPlay video player patches for better Samsung TV compatibility
+            - Includes SmartHub Preview and Oblong Icon.
             
             ## Installation
             1. Enable Developer Mode on your Samsung TV
